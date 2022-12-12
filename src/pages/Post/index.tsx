@@ -1,12 +1,21 @@
-import { Header, SearchFormContainer } from './styles'
+import {
+  Card,
+  CardContainer,
+  Description,
+  Header,
+  SearchFormContainer,
+} from './styles'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { useCallback, useEffect, useState } from 'react'
 import { apiPost } from '../../lib/axios'
 import { zodResolver } from '@hookform/resolvers/zod'
+import ReactMarkdown from 'react-markdown'
+import ptBR from 'date-fns/locale/pt-BR'
+import { formatDistanceToNow } from 'date-fns'
 
 interface PostProps {
-  id: number
+  number: number
   comments: number
   title: string
   login: string
@@ -26,9 +35,7 @@ export function Post() {
   console.log(post)
 
   useEffect(() => {
-    fetch(
-      'https://api.github.com/search/issues?q=%20repo:SWEThiago/github-Blog',
-    )
+    fetch('https://api.github.com/repos/SWEThiago/github-Blog/issues')
       .then((response) => response.json())
       .then((data) => setPosts(data))
   }, [])
@@ -58,7 +65,7 @@ export function Post() {
       <Header>
         <span>Publicações</span>
         <span>
-          <p>6 publicações</p>
+          <p>{post.length} publicações</p>
         </span>
       </Header>
 
@@ -69,6 +76,27 @@ export function Post() {
           {...register('query')}
         />
       </SearchFormContainer>
+
+      <CardContainer>
+        {post.map((post) => {
+          return (
+            <Card key={post.number}>
+              <div>
+                <h1>{post.title}</h1>
+                <span>
+                  {formatDistanceToNow(new Date(post.created_at), {
+                    addSuffix: true,
+                    locale: ptBR,
+                  })}
+                </span>
+              </div>
+              <Description>
+                <ReactMarkdown>{post.body}</ReactMarkdown>
+              </Description>
+            </Card>
+          )
+        })}
+      </CardContainer>
     </>
   )
 }
