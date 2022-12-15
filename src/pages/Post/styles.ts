@@ -115,4 +115,8 @@ export const CardContainer = styled.div`
 
   width: 864px;
   margin: auto;
+
+  a {
+    text-decoration: none;
+  }
 `

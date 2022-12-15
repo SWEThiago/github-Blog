@@ -4,6 +4,7 @@ import { FaGithub, FaFileContract, FaArrowUp } from 'react-icons/fa'
 import { BsPeople } from 'react-icons/bs'
 import { Body, Container, Footer, Header, ImgBackground, Logo } from './styles'
 import { useEffect, useState } from 'react'
+import { Post } from '../Post'
 
 interface UserProps {
   followers: number
@@ -63,6 +64,8 @@ export function Home() {
           </Footer>
         </Body>
       </Container>
+
+      <Post />
     </>
   )
 }

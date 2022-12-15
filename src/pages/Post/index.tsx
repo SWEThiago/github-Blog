@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import ReactMarkdown from 'react-markdown'
 import ptBR from 'date-fns/locale/pt-BR'
 import { formatDistanceToNow } from 'date-fns'
+import { useParams } from 'react-router-dom'
 
 interface PostProps {
   number: number
@@ -22,6 +23,7 @@ interface PostProps {
   created_at: string
   body: string
   url: string
+  id: number
 }
 
 const searchFormSchema = z.object({
@@ -40,17 +42,29 @@ export function Post() {
       .then((data) => setPosts(data))
   }, [])
 
-  const fetchPosts = useCallback(async (query?: string) => {
-    const response = await apiPost.get('Posts', {
-      params: {
-        _sort: 'createdAt',
-        _order: 'desc',
-        q: query,
-      },
-    })
+  // const fetchPosts = useCallback(async (query?: string) => {
+  //   const response = await apiPost.get('Posts', {
+  //     params: {
+  //       q: query,
+  //     },
+  //   })
 
-    setPosts(response.data)
-  }, [])
+  //   setPosts(response.data)
+  // }, [])
+
+  async function fetchPosts(query?: string) {
+    const url = new URL(
+      'https://api.github.com/search/issues?q=%20repo:SWEThiago/github-Blog/',
+    )
+    if (query) {
+      url.searchParams.append('q', query)
+    }
+
+    const response = await fetch(url)
+    const data = await response.json()
+    console.log(data)
+    setPosts(data)
+  }
 
   const { register, handleSubmit } = useForm<SearchFormInput>({
     resolver: zodResolver(searchFormSchema),
@@ -59,6 +73,8 @@ export function Post() {
   async function handleSearchPosts(data: SearchFormInput) {
     await fetchPosts(data.query)
   }
+
+  const { issueNumber } = useParams()
 
   return (
     <>
@@ -80,20 +96,22 @@ export function Post() {
       <CardContainer>
         {post.map((post) => {
           return (
-            <Card key={post.number}>
-              <div>
-                <h1>{post.title}</h1>
-                <span>
-                  {formatDistanceToNow(new Date(post.created_at), {
-                    addSuffix: true,
-                    locale: ptBR,
-                  })}
-                </span>
-              </div>
-              <Description>
-                <ReactMarkdown>{post.body}</ReactMarkdown>
-              </Description>
-            </Card>
+            <a href="http://127.0.0.1:5173/issueNumber" key={post.id}>
+              <Card>
+                <div>
+                  <h1>{post.title}</h1>
+                  <span>
+                    {formatDistanceToNow(new Date(post.created_at), {
+                      addSuffix: true,
+                      locale: ptBR,
+                    })}
+                  </span>
+                </div>
+                <Description>
+                  <ReactMarkdown>{post.body}</ReactMarkdown>
+                </Description>
+              </Card>
+            </a>
           )
         })}
       </CardContainer>
